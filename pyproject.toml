@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "codereview-env"
+version = "1.0.0"
+description = "OpenEnv environment for AI-driven code review and bug triage."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [
+  { name = "codereview-env" },
+]
+dependencies = [
+  "fastapi==0.115.5",
+  "openai==1.57.0",
+  "pydantic==2.10.3",
+  "pyyaml==6.0.2",
+  "requests==2.32.3",
+  "uvicorn[standard]==0.32.1",
+]
+
+[project.optional-dependencies]
+test = [
+  "pytest>=8.0",
+]
+
+[tool.setuptools]
+py-modules = ["env", "inference", "server"]
+
+[tool.setuptools.packages.find]
+include = ["tasks*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
