@@ -12,8 +12,10 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy source
+COPY app_runtime.py .
 COPY env.py .
 COPY server.py .
+COPY server/ server/
 COPY tasks/ tasks/
 COPY openenv.yaml .
 

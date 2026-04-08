@@ -1,6 +1,6 @@
-"""Compatibility wrapper for the packaged server entry point."""
+"""Source entry point used by Docker and local `python server.py` runs."""
 
-from server.app import app, main
+from app_runtime import app, main
 
 
 if __name__ == "__main__":
