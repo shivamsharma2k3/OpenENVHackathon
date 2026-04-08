@@ -7,19 +7,23 @@ name = "codereview-env"
 version = "1.0.0"
 description = "OpenEnv environment for AI-driven code review and bug triage."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [
   { name = "codereview-env" },
 ]
 dependencies = [
   "fastapi==0.115.5",
-  "openai==1.57.0",
+  "openai>=2.7.2,<3",
+  "openenv-core>=0.2.0",
   "pydantic==2.10.3",
   "pyyaml==6.0.2",
   "requests==2.32.3",
   "uvicorn[standard]==0.32.1",
 ]
+
+[project.scripts]
+server = "server.app:main"
 
 [project.optional-dependencies]
 test = [
@@ -27,10 +31,10 @@ test = [
 ]
 
 [tool.setuptools]
-py-modules = ["env", "inference", "server"]
+py-modules = ["env", "inference"]
 
 [tool.setuptools.packages.find]
-include = ["tasks*"]
+include = ["server*", "tasks*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
