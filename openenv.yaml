@@ -1,0 +1,114 @@
+name: codereview-env
+version: "1.0.0"
+description: >
+  An OpenEnv environment where an AI agent performs code review and bug triage
+  on realistic Python pull request diffs. The agent must identify bugs, classify
+  their severity, and suggest fixes — earning rewards for correct findings and
+  incurring penalties for false positives.
+
+author: codereview-env
+tags:
+  - openenv
+  - code-review
+  - bug-triage
+  - software-engineering
+  - real-world
+
+tasks:
+  - id: easy
+    difficulty: easy
+    description: >
+      Find one null-dereference bug in a user service PR.
+      Tests basic code comprehension and defensive programming awareness.
+    max_steps: 12
+    reward_range: [0.0, 1.0]
+
+  - id: medium
+    difficulty: medium
+    description: >
+      Find an off-by-one boundary error AND a missing threading lock in a
+      rate-limiter PR. Tests multi-issue detection and concurrency awareness.
+    max_steps: 12
+    reward_range: [0.0, 1.0]
+
+  - id: hard
+    difficulty: hard
+    description: >
+      Find a SQL injection vulnerability AND an unbounded cache memory leak
+      in a report service PR. Tests security awareness and performance analysis.
+    max_steps: 12
+    reward_range: [0.0, 1.0]
+
+observation_space:
+  type: object
+  fields:
+    diff:
+      type: string
+      description: Full PR diff text in unified diff format
+    pr_title:
+      type: string
+    pr_description:
+      type: string
+    step:
+      type: integer
+    max_steps:
+      type: integer
+    comments_so_far:
+      type: array
+      description: Review comments submitted so far this episode
+    last_action_feedback:
+      type: string
+      description: Feedback string from the environment on the last action
+    done:
+      type: boolean
+
+action_space:
+  type: object
+  description: >
+    Exactly one field should be non-null per action.
+  fields:
+    submit_comment:
+      type: object
+      description: Submit a review comment for one identified issue
+      fields:
+        issue_id:    { type: string }
+        severity:    { type: string, enum: [critical, high, medium, low] }
+        description: { type: string }
+        line_hint:   { type: integer, nullable: true }
+        fix_suggestion: { type: string }
+    approve:
+      type: boolean
+      description: Approve the PR as safe to merge (ends episode)
+    request_changes:
+      type: boolean
+      description: Request changes on the PR (ends episode)
+    pass_step:
+      type: boolean
+      description: Skip this step (small penalty applied)
+
+reward:
+  type: float
+  range: [0.0, 1.0]
+  description: >
+    Reward is shaped across the trajectory.
+    +0.3 for correctly identifying a real issue.
+    +0.1 for correct severity classification.
+    +0.1 for a fix suggestion matching ground-truth keywords.
+    -0.08 per false positive comment.
+    -0.05 for duplicate issue comments.
+    -0.02 per pass_step action.
+    Final decision bonus: up to +0.2 * recall for correct approve/request_changes.
+
+endpoints:
+  reset: POST /reset
+  step:  POST /step
+  state: GET  /state
+  grade: POST /grade
+
+docker:
+  port: 7860
+
+baseline_scores:
+  easy:   0.75
+  medium: 0.55
+  hard:   0.40
